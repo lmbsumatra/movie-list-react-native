@@ -6,20 +6,25 @@ import {
   TouchableOpacity,
 } from "react-native-gesture-handler";
 import { styles } from "../theme";
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
-export default function MovieList({ title, data }) {
+export default function MovieList({ title, data, hideSeeAll }) {
   let movieName = "Firefly Lane";
+  const navigation = useNavigation();
   return (
     <View className="mb-8 space-y-4">
       <View className="mx-4 flex-row justify-between items-center">
         <Text className="text-white text-xl">{title}</Text>
-        <TouchableOpacity>
-          <Text style={styles.text} className="text-lg">
-            See All
-          </Text>
-        </TouchableOpacity>
+
+        {!hideSeeAll && (
+          <TouchableOpacity>
+            <Text style={styles.text} className="text-lg">
+              See All
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView
@@ -31,7 +36,7 @@ export default function MovieList({ title, data }) {
           return (
             <TouchableWithoutFeedback
               key={index}
-              onPress={() => NavigationPreloadManager.navigate("Movie", item)}
+              onPress={() => navigation.push("Movie", item)}
             >
               <View className="space-y-1 mr-4">
                 <Image
@@ -40,7 +45,11 @@ export default function MovieList({ title, data }) {
                   style={{ width: width * 0.33, height: height * 0.22 }}
                 />
               </View>
-              <Text className="text-neutral-300 ml-1">{movieName.length>14 ? movieName.slice(0,14)+'...' : movieName}</Text>
+              <Text className="text-neutral-300 ml-1">
+                {movieName.length > 14
+                  ? movieName.slice(0, 14) + "..."
+                  : movieName}
+              </Text>
             </TouchableWithoutFeedback>
           );
         })}

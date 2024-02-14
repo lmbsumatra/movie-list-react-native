@@ -50,6 +50,7 @@ export default function MovieScreen() {
             }
           >
             <TouchableOpacity
+              onPress={() => navigation.goBack()}
               style={styles.background}
               className="rounded-xl p-1"
             >
@@ -113,6 +114,11 @@ export default function MovieScreen() {
         {/* Casts */}
         <Cast cast={cast} navigation={navigation} />
 
+        <MovieList
+          title="Similar Movies"
+          hideSeeAll={true}
+          data={similarMovies}
+        />
       </ScrollView>
     </GestureHandlerRootView>
   );
