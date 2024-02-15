@@ -1,6 +1,11 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import React from "react";
 import { ScrollView } from "react-native-gesture-handler";
+import {
+  fallBackMoviePoster,
+  fallBackPersonImage,
+  image185,
+} from "../api/moviedb";
 
 export default function Cast({ cast, navigation }) {
   let personName = "Alissa Skovbye";
@@ -16,25 +21,29 @@ export default function Cast({ cast, navigation }) {
         {cast &&
           cast.map((person, index) => {
             return (
-              <TouchableOpacity 
-                key={index} 
+              <TouchableOpacity
+                key={index}
                 className="mr-4 items-center"
-                onPress={()=>navigation.navigate('Person', person)}>
+                onPress={() => navigation.navigate("Person", person)}
+              >
                 <View className="overflow-hidden rounded-full h-20 w-20 items-center border border-neutral-500">
                   <Image
                     className="rounded-wxl h-24 w-20"
-                    source={require("../assets/images/castImage1.png")}
+                    source={{
+                      uri:
+                        image185(person?.profile_path) || fallBackPersonImage,
+                    }}
                   />
                 </View>
                 <Text className="text-white text-xs mt-1">
-                  {characterName.length > 10
-                    ? characterName.slice(0, 10) + "..."
-                    : characterName}
+                  {person?.character.length > 10
+                    ? person?.character.slice(0, 10) + "..."
+                    : person?.character}
                 </Text>
                 <Text className="text-neutral-400 text-xs mt-1">
-                  {personName.lenght > 10
-                    ? personName.slice(0, 10) + "..."
-                    : personName}
+                  {person?.name.length > 10
+                    ? person?.name.slice(0, 10) + "..."
+                    : person?.name}
                 </Text>
               </TouchableOpacity>
             );

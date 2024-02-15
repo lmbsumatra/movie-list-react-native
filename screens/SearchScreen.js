@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   GestureHandlerRootView,
@@ -16,20 +16,43 @@ import {
 import { XMarkIcon } from "react-native-heroicons/solid";
 import { useNavigation } from "@react-navigation/native";
 import Loading from "../components/loading";
+import { debounce } from "lodash";
+import { fallBackMoviePoster, image185, searchMovies } from "../api/moviedb";
 
 var { width, height } = Dimensions.get("window");
 
 export default function SearchScreen() {
   const navigation = useNavigation();
-  const [results, setResults] = useState([1, 2, 3, 4]);
+  const [results, setResults] = useState([]);
   let movieName = "Firefly Lane";
   const [loading, setLoading] = useState(false);
+
+  const handleSearch = (value) => {
+    if (value && value.length > 2) {
+      setLoading(true);
+      searchMovies({
+        query: value,
+        include_adult: "false",
+        language: "en-US",
+        page: "1",
+      }).then((data) => {
+        setLoading(false);
+        if (data && data.results) setResults(data.results);
+      });
+    } else {
+      setLoading(false);
+      setResults([]);
+    }
+  };
+
+  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
   return (
     <GestureHandlerRootView className="bg-neutral-800 flex-1">
       <SafeAreaView>
         <View className="mx-4 mb-3 flex-row justify-between items-center border border-neutral-500 rounded-full">
           <TextInput
+            onChangeText={handleTextDebounce}
             placeholder="Search Movie"
             placeholderTextColor={"lightgray"}
             className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
@@ -52,7 +75,7 @@ export default function SearchScreen() {
             className="space-y-3"
           >
             <Text className="text-ehite font-semibold ml-1">
-              Results ({results.lenght})
+              
             </Text>
             <View className="flex-row justify-between flex-wrap">
               {results.map((item, index) => {
@@ -64,13 +87,13 @@ export default function SearchScreen() {
                     <View className="space-y-2 mb-4">
                       <Image
                         className="rounded-3xl"
-                        source={require("../assets/images/moviePoster1.png")}
+                        source={{uri: image185(item?.poster_path) || fallBackMoviePoster}}
                         style={{ width: width * 0.44, height: height * 0.3 }}
                       />
                       <Text className="text-neutral-300 ml-1">
-                        {movieName.length > 22
-                          ? movieName.slice(0, 22) + "..."
-                          : movieName}
+                        {item?.title.length > 22
+                          ? item?.title.slice(0, 22) + "..."
+                          : item?.title}
                       </Text>
                     </View>
                   </TouchableWithoutFeedback>

@@ -16,19 +16,21 @@ import TrendingMovies from "../components/trendingMovies";
 import MovieList from "../components/movieList";
 import { useNavigation } from "@react-navigation/native";
 import Loading from "../components/loading";
-import { fetchTrendingMovies } from "../api/moviedb";
+import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies } from "../api/moviedb";
 
 const ios = Platform.OS == "ios";
 
 export default function HomeScreen() {
-  const [trending, setTrending] = useState([1, 2, 3]);
-  const [upcoming, setUpcoming] = useState([1, 2, 3]);
-  const [topRated, setTopRated] = useState([1, 2, 3]);
+  const [trending, setTrending] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
+  const [topRated, setTopRated] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
   useEffect(() => {
     getTrendingMovies();
+    getUpcompingMovies();
+    getTopRatedMovies();
   }, []);
 
   const getTrendingMovies = async () => {
@@ -36,6 +38,18 @@ export default function HomeScreen() {
     // console.log("got trending movies: ", data);
     if (data && data.results) setTrending(data.results);
     setLoading(false);
+  };
+
+  const getUpcompingMovies = async () => {
+    const data = await fetchUpcomingMovies();
+    // console.log("got trending movies: ", data);
+    if (data && data.results) setUpcoming(data.results);
+  };
+
+  const getTopRatedMovies = async () => {
+    const data = await fetchTopRatedMovies();
+    // console.log("got trending movies: ", data);
+    if (data && data.results) setTopRated(data.results);
   };
 
   return (

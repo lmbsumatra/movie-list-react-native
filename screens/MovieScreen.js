@@ -20,6 +20,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Cast from "../components/cast";
 import MovieList from "../components/movieList";
 import Loading from "../components/loading";
+import { fetchMovieDetails, image500, fetchMovieCredits, fetchSimilarMovies } from "../api/moviedb";
 
 var { width, height } = Dimensions.get("window");
 
@@ -30,13 +31,36 @@ export default function MovieScreen() {
   const { params: item } = useRoute();
   const [isFavourite, toggleFavourite] = useState(false);
   const navigation = useNavigation();
-  const [cast, setCast] = useState([1, 2, 3, 4, 5]);
-  const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4, 5]);
+  const [cast, setCast] = useState([]);
+  const [similarMovies, setSimilarMovies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [movie, setMovie] = useState({});
 
   let movieName = "Firefly Lane";
 
-  useEffect(() => {}, [item]);
+  useEffect(() => {
+    setLoading(true);
+    getMovieDetails(item.id);
+    getMovieCredits(item.id);
+    getSimilarMovies(item.id);
+  }, [item]);
+
+  const getMovieDetails = async (id) => {
+    const data = await fetchMovieDetails(id);
+    // console.log("data", data);
+    if (data) setMovie(data);
+    setLoading(false);
+  };
+  const getMovieCredits = async (id) => {
+    const data = await fetchMovieCredits(id);
+    // console.log("data", data);
+    if (data && data.cast) setCast(data.cast);
+  };
+  const getSimilarMovies = async (id) => {
+    const data = await fetchSimilarMovies(id);
+    // console.log("data", data.results);
+    if (data && data.results) setSimilarMovies(data.results);
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -70,7 +94,9 @@ export default function MovieScreen() {
           ) : (
             <View>
               <Image
-                source={require("../assets/images/moviePoster1.png")}
+                source={
+                  { uri: image500(movie?.poster_path) } || fallBackMoviePoster
+                }
                 style={{ width, height: height * 0.55 }}
               />
               <LinearGradient
@@ -89,34 +115,33 @@ export default function MovieScreen() {
         </View>
         <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
           <Text className="text-white text-center text-3xl font-bold tracking-wider">
-            {movieName}
+            {movie?.title}
           </Text>
 
           {/* Status, Release, Runtime */}
-          <Text className="text-neutral-400 font-semibold text-base text-center">
-            Release * 2020 * 170 min
-          </Text>
+
+          {movie?.id ? (
+            <Text className="text-neutral-400 font-semibold text-base text-center">
+              {movie?.status} • {movie?.release_date?.split("-")[0]} •{" "}
+              {movie?.runtime} min
+            </Text>
+          ) : null}
 
           {/* Genres */}
           <View className="flex-row justify-center mx-4 space-x-2">
-            <Text className="text-neutral-400 font-semibold text-base text-center">
-              Action *
-            </Text>
-            <Text className="text-neutral-400 font-semibold text-base text-center">
-              Thrill *
-            </Text>
-            <Text className="text-neutral-400 font-semibold text-base text-center">
-              Comedy
-            </Text>
+            {movie?.genres?.map((genre, index) => {
+              let showDot = index + 1 != movie.genres.length;
+              return (
+                <Text className="text-neutral-400 font-semibold text-base text-center">
+                  {genre?.name} {showDot ? "•" : null}
+                </Text>
+              );
+            })}
           </View>
 
           {/* Movie Description */}
           <Text className="text-neutral-400 mx-4 tracking-wide">
-            Firefly Lane follows the friendship and bond between two women from
-            the Seattle area, Kate Mularkey and Tallulah "Tully" Hart, from when
-            they become neighbors at age 14 on a street named Firefly Lane,
-            through the decades until their 40s, through the ups and downs of
-            their lives.
+            {movie?.overview}
           </Text>
         </View>
 

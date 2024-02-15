@@ -8,8 +8,11 @@ const { width, height } = Dimensions.get("window");
 export default function Loading() {
   return (
     <View
-      style={{ height, width }}
-      className="absolute flex-row justify-center items-center"
+    style={{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",// Add background color if needed
+    }}
     >
       <Progress.CircleSnail
         thickness={12}

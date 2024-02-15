@@ -3,10 +3,10 @@ import React from "react";
 import Carousel from "react-native-snap-carousel";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
-import { image185, image500 } from "../api/moviedb";
+import {  fallBackMoviePoster, image500 } from "../api/moviedb";
 
 const { width, height } = Dimensions.get("window");
-
+ 
 export default function TrendingMovies({ data }) {
   
   const navigation = useNavigation();
@@ -33,11 +33,10 @@ export default function TrendingMovies({ data }) {
 }
 
 const MovieCard = ({ item, handleClick }) => {
-  console.log('here', item.poster_path)
   return (
     <TouchableWithoutFeedback onPress={()=> handleClick(item)}>
       <Image
-        source={{uri: image500(item.poster_path)}}
+        source={{uri: image500(item.poster_path)} || fallBackMoviePoster}
         style={{
           width: width * 0.6,
           height: height * 0.4,
